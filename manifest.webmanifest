@@ -1,0 +1,17 @@
+{
+  "name": "TrackNutri",
+  "short_name": "TrackNutri",
+  "description": "Seguimiento personal de nutrición, calorías, macros, micronutrientes y peso.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F2F4EE",
+  "theme_color": "#F2F4EE",
+  "orientation": "portrait",
+  "icons": [
+    {"src":"icon-180.png","sizes":"180x180","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}

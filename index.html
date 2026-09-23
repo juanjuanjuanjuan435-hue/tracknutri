@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F4EE">
+<title>TrackNutri</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--paper:#F2F4EE;--card:#FFF;--ink:#1C1B17;--forest:#2F4A3C;--mustard:#C98A1F;--rust:#A8402C;--line:rgba(28,27,23,.16)}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{touch-action:manipulation}
+button:active{transform:scale(.97)}
+.tk-root{width:100%;max-width:480px;min-height:100vh;margin:0 auto;padding:16px 14px calc(40px + env(safe-area-inset-bottom,0px))}
+.tk-loading{display:flex;align-items:center;justify-content:center;height:200px}
+h1{font-family:Impact,"Arial Black",system-ui,sans-serif}
+.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+.icon{width:18px;height:18px;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon-sm{width:14px;height:14px}
+
+/* Onboarding */
+.onboard-card{background:var(--card);border:2px solid var(--ink);border-radius:4px;padding:22px 16px;margin-top:16px}
+.onboard-eyebrow{font-family:"Courier New",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--forest);font-weight:700}
+.onboard-title{font-size:24px;margin:6px 0}
+.onboard-sub{font-size:13px;color:#55534C;margin:0 0 18px;line-height:1.5}
+.onboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:360px){.onboard-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#3A3934}
+.field-wide{grid-column:1/-1}
+.field input,.field select{font-size:16px;padding:11px 10px;border:1.5px solid var(--ink);border-radius:3px;background:var(--paper);color:var(--ink);min-height:44px;width:100%}
+.field input:focus,.field select:focus{outline:2px solid var(--forest);outline-offset:1px}
+.goal-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-size:12.5px;font-weight:700;padding:9px 13px;min-height:44px;border-radius:20px;border:1.5px solid var(--ink);background:var(--card);cursor:pointer}
+.pill-active{background:var(--forest);color:#fff;border-color:var(--forest)}
+.btn-primary{margin-top:18px;width:100%;background:var(--forest);color:#fff;font-weight:700;font-size:15px;padding:13px;min-height:48px;border-radius:6px;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:disabled{opacity:.55;cursor:default}
+.btn-full{width:100%;margin-top:10px}
+.btn-ghost{width:100%;background:transparent;color:var(--ink);font-weight:700;font-size:14px;padding:12px;min-height:46px;border-radius:6px;border:1.5px solid var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+
+/* Date */
+.date-nav{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.date-label{font-family:"Courier New",monospace;font-weight:700;font-size:13px;flex:0 0 auto}
+.icon-btn{background:none;border:1.5px solid var(--ink);border-radius:6px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.icon-btn:disabled{opacity:.3;cursor:default}
+.edit-profile-link{margin-left:auto;background:none;border:0;font-size:12.5px;color:var(--forest);font-weight:700;cursor:pointer;text-decoration:underline;padding:8px 2px}
+
+/* Nutrition label */
+.nutrition-panel{background:var(--card);border:3px solid var(--ink);border-radius:2px;padding:14px 14px 10px;margin-bottom:14px}
+.np-header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.np-eyebrow{font-family:"Courier New",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#55534C}
+.np-name{font-family:Impact,"Arial Black",system-ui,sans-serif;font-size:15px}
+.np-serving{font-size:12px;color:#55534C;margin-top:2px}
+.np-rule-thick{height:6px;background:var(--ink);margin:8px 0}
+.np-calories-row{display:flex;align-items:baseline;gap:6px;padding:2px 0;flex-wrap:wrap}
+.np-calories-label{font-family:Impact,"Arial Black",system-ui,sans-serif;font-size:17px}
+.np-calories-value{font-family:Impact,"Arial Black",system-ui,sans-serif;font-size:32px;margin-left:auto}
+.np-calories-target{font-family:"Courier New",monospace;font-size:11.5px;color:#55534C}
+.np-footnote{margin-top:12px;font-size:11px;color:#55534C;border-top:1px solid var(--line);padding-top:8px}
+.label-row{padding:7px 0;border-bottom:1px solid var(--line)}
+.label-row-bold .label-row-name{font-weight:700}
+.label-row-indent{padding-left:14px}
+.label-row-text{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;gap:8px}
+.label-row-value{font-family:"Courier New",monospace;font-size:12px;font-weight:700;white-space:nowrap}
+.label-row-target{color:#8A887F;font-weight:500}
+.dv-track{height:5px;background:var(--line);border-radius:3px;margin-top:5px;overflow:hidden}
+.dv-fill{height:100%;border-radius:3px}
+.disclosure-btn{display:flex;align-items:center;gap:6px;background:none;border:0;font-family:"Courier New",monospace;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#55534C;cursor:pointer;padding:10px 2px;width:100%;text-align:left;min-height:44px}
+.micros-toggle{margin-top:2px}
+
+/* Cards */
+.card{background:var(--card);border:1.5px solid var(--ink);border-radius:8px;padding:14px;margin-bottom:12px}
+.card-primary{border-width:2px}
+.card-title{font-family:"Courier New",monospace;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.text-input{width:100%;font-size:16px;padding:11px 10px;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink)}
+.text-input:focus{outline:2px solid var(--forest);outline-offset:1px}
+.textarea-big{resize:vertical;min-height:78px;line-height:1.4}
+.results-list{margin-top:8px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.result-item{display:flex;justify-content:space-between;width:100%;padding:12px 10px;min-height:44px;background:var(--card);border:0;border-bottom:1px solid var(--line);cursor:pointer;font-size:13.5px;text-align:left}
+.result-item:last-child{border-bottom:0}
+.result-cal{color:#8A887F;font-family:"Courier New",monospace;font-size:11px;white-space:nowrap}
+.grams-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.grams-food{font-weight:700;font-size:13px;flex:1 1 100%}
+.grams-input{width:76px;font-family:"Courier New",monospace;font-size:16px;padding:9px 8px;min-height:44px;border:1.5px solid var(--ink);border-radius:6px}
+.btn-small{display:flex;align-items:center;gap:5px;background:var(--forest);color:#fff;border:0;font-size:12.5px;font-weight:700;padding:10px 14px;min-height:44px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.btn-secondary{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--paper);color:var(--ink);border:1.5px solid var(--ink);font-size:13.5px;font-weight:700;padding:12px;min-height:46px;border-radius:6px;cursor:pointer}
+.btn-secondary:disabled{opacity:.6}
+.error-text{color:var(--rust);font-size:12.5px;margin-top:8px;line-height:1.4}
+.error-box{display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:var(--rust);font-size:12.5px;margin-top:8px;line-height:1.4;background:#F7E9E5;border:1px solid var(--rust);border-radius:6px;padding:10px 12px}
+.error-box .link-btn{color:var(--rust);padding:2px 0}
+
+/* Preview */
+.preview-wrap{margin-top:14px;border-top:1.5px dashed var(--line);padding-top:12px}
+.preview-label{display:flex;align-items:center;gap:6px;font-family:"Courier New",monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--forest);margin-bottom:8px}
+.preview-desc{font-weight:700;margin-bottom:10px}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+@media(max-width:340px){.preview-grid{grid-template-columns:1fr}}
+.preview-field{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:700;color:#55534C}
+.preview-input{font-family:"Courier New",monospace;font-size:16px;padding:9px 8px;min-height:44px;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink);width:100%}
+.preview-actions{display:flex;gap:10px;margin-top:12px}
+.preview-actions .btn-primary{margin-top:0;flex:1}
+.preview-actions .btn-ghost{flex:0 0 auto;width:auto;padding:12px 16px}
+.log-list{display:flex;flex-direction:column}
+.log-item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.log-item:last-child{border-bottom:0}
+.log-desc{flex:1}
+.log-cal{font-family:"Courier New",monospace;font-size:12px;color:#55534C;white-space:nowrap}
+.icon-btn-danger{background:none;border:0;color:#8A887F;cursor:pointer;padding:8px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+
+/* Weight */
+.weight-row{display:flex;gap:8px;margin-bottom:12px}
+.weight-row .text-input{flex:1}
+.barcode{display:flex;align-items:flex-end;gap:2px;height:40px;padding:6px 0 12px}
+.barcode-bar{width:3px;background:var(--ink);flex-shrink:0}
+.barcode-empty{font-size:12px;color:#8A887F;padding:6px 0 12px}
+.sticky-note{margin-top:12px;background:#FCEFC7;border:1.5px solid var(--mustard);border-radius:4px;padding:12px 14px}
+.sticky-title{font-family:"Courier New",monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.sticky-body{font-size:13px;line-height:1.5;margin:0 0 8px}
+.sticky-numbers{font-family:"Courier New",monospace;font-size:12px;font-weight:700;margin-bottom:10px}
+.sticky-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.link-btn{background:none;border:0;color:var(--forest);font-weight:700;font-size:12.5px;text-decoration:underline;cursor:pointer;padding:8px 0}
+.disclaimer{font-size:10.5px;color:#8A887F;line-height:1.5;margin-top:4px;padding:0 2px}
+
+/* Camera / objectives */
+.capture-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.capture-btn{min-height:48px;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}.capture-btn-primary{background:var(--forest);color:#fff;border-color:var(--forest)}.photo-preview{margin-top:10px;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:#111}.photo-preview img{display:block;width:100%;max-height:280px;object-fit:cover}.photo-meta{display:flex;justify-content:space-between;padding:8px 10px;background:var(--card);font-size:11px;color:#55534C}.objective-summary{margin-top:10px;border:1.5px solid var(--forest);border-radius:6px;padding:11px 12px;background:#EEF4EF}.objective-summary-title{font-family:"Courier New",monospace;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--forest);margin-bottom:7px}.objective-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px}.objective-grid b{font-family:"Courier New",monospace}.objective-note{font-size:11px;color:#55534C;line-height:1.45;margin-top:8px}.remaining-box{font-size:11.5px;color:#55534C;margin-top:5px}
+/* Settings modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.modal{width:min(480px,100%);max-height:90vh;overflow:auto;background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:16px 14px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.modal-title{font-family:Impact,"Arial Black",system-ui,sans-serif;font-size:22px}
+.close-btn{background:none;border:1.5px solid var(--ink);border-radius:6px;width:44px;height:44px;display:flex;align-items:center;justify-content:center}
+.settings-help{font-size:12.5px;line-height:1.5;color:#55534C}
+.api-row{display:flex;gap:8px}
+.api-row .text-input{flex:1}
+.api-status{margin-top:8px;font-size:12px;font-weight:700}
+.status-ok{color:var(--forest)}.status-warn{color:var(--mustard)}
+.security-note{margin-top:12px;background:#F7E9E5;border:1px solid var(--rust);border-radius:6px;padding:10px 12px;font-size:11.5px;line-height:1.5;color:#633126}
+.model-row{margin-top:12px}
+.small-label{display:block;font-size:11px;font-weight:700;color:#55534C;margin-bottom:5px}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="TrackNutri">
+<meta name="mobile-web-app-capable" content="yes">
+
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+
+const FOOD_DB = [
+{name:"Pechuga de pollo",cal:165,protein:31,carbs:0,fat:3.6,fiber:0,sugar:0,sodium:74,potassium:256,calcium:15,iron:1,vitaminC:0,vitaminD:0},
+{name:"Arroz blanco cocido",cal:130,protein:2.7,carbs:28,fat:.3,fiber:.4,sugar:.1,sodium:1,potassium:35,calcium:10,iron:.2,vitaminC:0,vitaminD:0},
+{name:"Huevo",cal:155,protein:13,carbs:1.1,fat:11,fiber:0,sugar:1.1,sodium:124,potassium:126,calcium:56,iron:1.8,vitaminC:0,vitaminD:2},
+{name:"Pan integral",cal:247,protein:13,carbs:41,fat:3.4,fiber:7,sugar:4.3,sodium:400,potassium:230,calcium:40,iron:2.5,vitaminC:0,vitaminD:0},
+{name:"Aguacate",cal:160,protein:2,carbs:8.5,fat:14.7,fiber:6.7,sugar:.7,sodium:7,potassium:485,calcium:12,iron:.6,vitaminC:10,vitaminD:0},
+{name:"Atún en lata (al natural)",cal:116,protein:26,carbs:0,fat:1,fiber:0,sugar:0,sodium:247,potassium:252,calcium:8,iron:1.3,vitaminC:0,vitaminD:1.7},
+{name:"Lentejas cocidas",cal:116,protein:9,carbs:20,fat:.4,fiber:7.9,sugar:1.8,sodium:2,potassium:369,calcium:19,iron:3.3,vitaminC:1.5,vitaminD:0},
+{name:"Plátano",cal:89,protein:1.1,carbs:23,fat:.3,fiber:2.6,sugar:12,sodium:1,potassium:358,calcium:5,iron:.3,vitaminC:8.7,vitaminD:0},
+{name:"Manzana",cal:52,protein:.3,carbs:14,fat:.2,fiber:2.4,sugar:10,sodium:1,potassium:107,calcium:6,iron:.1,vitaminC:4.6,vitaminD:0},
+{name:"Leche entera",cal:61,protein:3.2,carbs:4.8,fat:3.3,fiber:0,sugar:5.1,sodium:43,potassium:150,calcium:113,iron:0,vitaminC:0,vitaminD:1.3},
+{name:"Yogur natural",cal:61,protein:3.5,carbs:4.7,fat:3.3,fiber:0,sugar:4.7,sodium:46,potassium:155,calcium:121,iron:.1,vitaminC:.5,vitaminD:0},
+{name:"Avena",cal:389,protein:16.9,carbs:66,fat:6.9,fiber:10.6,sugar:0,sodium:2,potassium:429,calcium:54,iron:4.7,vitaminC:0,vitaminD:0},
+{name:"Almendras",cal:579,protein:21,carbs:22,fat:50,fiber:12.5,sugar:4.4,sodium:1,potassium:733,calcium:269,iron:3.7,vitaminC:0,vitaminD:0},
+{name:"Aceite de oliva",cal:884,protein:0,carbs:0,fat:100,fiber:0,sugar:0,sodium:2,potassium:1,calcium:1,iron:.6,vitaminC:0,vitaminD:0},
+{name:"Brócoli",cal:34,protein:2.8,carbs:6.6,fat:.4,fiber:2.6,sugar:1.7,sodium:33,potassium:316,calcium:47,iron:.7,vitaminC:89,vitaminD:0},
+{name:"Tomate",cal:18,protein:.9,carbs:3.9,fat:.2,fiber:1.2,sugar:2.6,sodium:5,potassium:237,calcium:10,iron:.3,vitaminC:14,vitaminD:0},
+{name:"Patata cocida",cal:87,protein:1.9,carbs:20,fat:.1,fiber:1.8,sugar:.9,sodium:5,potassium:379,calcium:8,iron:.3,vitaminC:13,vitaminD:0},
+{name:"Salmón",cal:208,protein:20,carbs:0,fat:13,fiber:0,sugar:0,sodium:59,potassium:363,calcium:9,iron:.3,vitaminC:0,vitaminD:11},
+{name:"Queso fresco",cal:98,protein:11,carbs:3.4,fat:4,fiber:0,sugar:3.4,sodium:364,potassium:104,calcium:83,iron:.1,vitaminC:0,vitaminD:0},
+{name:"Garbanzos cocidos",cal:164,protein:8.9,carbs:27,fat:2.6,fiber:7.6,sugar:4.8,sodium:7,potassium:291,calcium:49,iron:2.9,vitaminC:1.3,vitaminD:0},
+{name:"Pasta cocida",cal:131,protein:5,carbs:25,fat:1.1,fiber:1.8,sugar:.6,sodium:1,potassium:44,calcium:7,iron:.9,vitaminC:0,vitaminD:0},
+{name:"Jamón serrano",cal:241,protein:31,carbs:0,fat:13,fiber:0,sugar:0,sodium:2340,potassium:350,calcium:10,iron:1.5,vitaminC:0,vitaminD:0},
+{name:"Nueces",cal:654,protein:15,carbs:14,fat:65,fiber:6.7,sugar:2.6,sodium:2,potassium:441,calcium:98,iron:2.9,vitaminC:1.3,vitaminD:0},
+{name:"Espinacas",cal:23,protein:2.9,carbs:3.6,fat:.4,fiber:2.2,sugar:.4,sodium:79,potassium:558,calcium:99,iron:2.7,vitaminC:28,vitaminD:0},
+{name:"Naranja",cal:47,protein:.9,carbs:12,fat:.1,fiber:2.4,sugar:9.4,sodium:0,potassium:181,calcium:40,iron:.1,vitaminC:53,vitaminD:0}
+];
+
+const NUTRIENT_KEYS=["cal","protein","carbs","fat","fiber","sugar","sodium","potassium","calcium","iron","vitaminC","vitaminD"];
+const MAIN_KEYS=[["cal","Calorías","kcal"],["protein","Proteína","g"],["carbs","Carbohidratos","g"],["fat","Grasa","g"]];
+const MICRO_KEYS=[["fiber","Fibra","g"],["sugar","Azúcares","g"],["sodium","Sodio","mg"],["potassium","Potasio","mg"],["calcium","Calcio","mg"],["iron","Hierro","mg"],["vitaminC","Vitamina C","mg"],["vitaminD","Vitamina D","mcg"]];
+const ACTIVITY_LEVELS=[
+{id:"sedentario",label:"Sedentario (poco o ningún ejercicio)",factor:1.2},
+{id:"ligero",label:"Ligero (1-3 días/semana)",factor:1.375},
+{id:"moderado",label:"Moderado (3-5 días/semana)",factor:1.55},
+{id:"activo",label:"Activo (6-7 días/semana)",factor:1.725},
+{id:"muy_activo",label:"Muy activo (trabajo físico + deporte)",factor:1.9}
+];
+const GOALS=[{id:"perder",label:"Perder grasa",delta:-450},{id:"mantener",label:"Mantener",delta:0},{id:"ganar",label:"Ganar músculo",delta:300}];
+
+const KEY={
+ profile:"tn-profile",
+ targets:"tn-targets-override",
+ weights:"tn-weights",
+ api:"tn-openai-api-key",
+ model:"tn-openai-model"
+};
+
+const state={
+ ready:false, profile:null, profileDraft:{name:"",sex:"hombre",age:19,weight:70,height:175,activity:"moderado",goal:"mantener"},
+ dateOffset:0, log:[], weights:[], weightInput:"",
+ overrideTargets:null, microsOpen:true,
+ aiText:"", aiLoading:false, aiError:"", aiPreview:null, previewMicros:false, photoData:"", photoName:"", photoLoading:false, photoError:"", objectiveText:read("tn-objective-text","")||"", objectiveLoading:false, objectiveError:"", objectivePreview:null,
+ dbOpen:false, query:"", selectedFood:null, grams:100,
+ suggestion:null,suggestionLoading:false,suggestionError:"",
+ settingsOpen:false, apiKey:"", model:"gpt-5-mini"
+};
+
+function safeStorage(){
+  try{
+    const test="__tn_test__";
+    localStorage.setItem(test,"1");
+    localStorage.removeItem(test);
+    return localStorage;
+  }catch(e){return null}
+}
+const storage=safeStorage();
+function read(key,fallback=null){
+  if(!storage)return fallback;
+  try{const v=storage.getItem(key);return v===null?fallback:JSON.parse(v)}catch(e){return fallback}
+}
+function readText(key,fallback=""){
+  if(!storage)return fallback;
+  try{const v=storage.getItem(key);return v===null?fallback:v}catch(e){return fallback}
+}
+function write(key,value){
+  if(!storage)return false;
+  try{storage.setItem(key,typeof value==="string"?value:JSON.stringify(value));return true}catch(e){return false}
+}
+function remove(key){try{storage&&storage.removeItem(key)}catch(e){}}
+
+function todayStr(offset=0){const d=new Date();d.setDate(d.getDate()+offset);return d.toISOString().slice(0,10)}
+function emptyTotals(){return {cal:0,protein:0,carbs:0,fat:0,fiber:0,sugar:0,sodium:0,potassium:0,calcium:0,iron:0,vitaminC:0,vitaminD:0}}
+function microTargets(sex){return {fiber:30,sugar:50,sodium:2300,potassium:3500,calcium:1000,iron:sex==="mujer"?18:8,vitaminC:sex==="mujer"?75:90,vitaminD:15}}
+function calcDefaultTargets(p){
+ const bmr=p.sex==="mujer"?10*p.weight+6.25*p.height-5*p.age-161:10*p.weight+6.25*p.height-5*p.age+5;
+ const factor=(ACTIVITY_LEVELS.find(a=>a.id===p.activity)||ACTIVITY_LEVELS[0]).factor;
+ const tdee=bmr*factor;
+ const delta=(GOALS.find(g=>g.id===p.goal)||GOALS[1]).delta;
+ const calories=Math.round(tdee+delta);
+ const protein=Math.round(p.weight*1.8);
+ const fat=Math.round(calories*.27/9);
+ const carbs=Math.max(0,Math.round((calories-protein*4-fat*9)/4));
+ return {calories,protein,carbs,fat,...microTargets(p.sex)}
+}
+function totals(){
+ const t=emptyTotals();
+ state.log.forEach(item=>NUTRIENT_KEYS.forEach(k=>t[k]+=Number(item[k])||0));
+ return t;
+}
+function getTargets(){
+ if(!state.profile)return null;
+ const base=calcDefaultTargets(state.profile);
+ return state.overrideTargets?{...base,...state.overrideTargets}:base;
+}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function icon(name,cls="icon"){
+ const paths={
+  plus:'<path d="M12 5v14M5 12h14"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+  sparkles:'<path d="m12 3-1.5 5.5L5 10l5.5 1.5L12 17l1.5-5.5L19 10l-5.5-1.5L12 3Z"/><path d="m19 16-.7 2.3L16 19l2.3.7L19 22l.7-2.3L22 19l-2.3-.7L19 16Z"/>',
+  x:'<path d="m6 6 12 12M18 6 6 18"/>',loader:'<path d="M12 2a10 10 0 1 0 10 10"/>',
+  left:'<path d="m15 18-6-6 6-6"/>',right:'<path d="m9 18 6-6-6-6"/>',down:'<path d="m6 9 6 6 6-6"/>',
+  scale:'<path d="M12 3v18M5 7h14M7 7l-2 4h4L7 7Zm10 0-2 4h4l-2-4ZM8 21h8"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.7-4L3 10m0-5v5h5M4 13a8 8 0 0 0 14.7 4L21 14m0 5v-5h-5"/>',
+  check:'<path d="m5 12 4 4L19 6"/>',pencil:'<path d="m4 20 4.5-1L19 8.5a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z"/>',
+  eye:'<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/>',
+  eyeoff:'<path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-3.1 3.9M6.6 6.6C3.5 8.4 2 12 2 12s3.5 7 10 7a10.8 10.8 0 0 0 4.1-.8"/>'
+ };
+ return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||""}</svg>`;
+}
+
+function labelRow(label,value,unit,target,isUpper=false,bold=false,indent=false){
+ const pct=target?Math.round(value/target*100):0;
+ let color="var(--forest)";
+ if(isUpper){if(pct>100)color="var(--rust)";else if(pct>80)color="var(--mustard)"}else if(pct>100)color="var(--mustard)";
+ return `<div class="label-row ${bold?"label-row-bold":""} ${indent?"label-row-indent":""}">
+ <div class="label-row-text"><span class="label-row-name">${label}</span><span class="label-row-value">${Math.round(value*10)/10}${unit}${target?`<span class="label-row-target"> / ${target}${unit}</span>`:""}</span></div>
+ ${target?`<div class="dv-track"><div class="dv-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>`:""}</div>`;
+}
+
+function fileToDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error("No se pudo leer la imagen."));r.readAsDataURL(file)})}
+function resizeImageDataUrl(dataUrl,maxSide=1600,quality=.82){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);resolve(c.toDataURL("image/jpeg",quality))};img.onerror=()=>reject(new Error("No se pudo procesar la imagen."));img.src=dataUrl})}
+function foodSchema(){return `Devuelve ÚNICAMENTE JSON: {"description":"string","foods":[{"name":"string","grams":number,"confidence":number}],"cal":number,"protein":number,"carbs":number,"fat":number,"fiber":number,"sugar":number,"sodium":number,"potassium":number,"calcium":number,"iron":number,"vitaminC":number,"vitaminD":number}. Los nutrientes corresponden a toda la porción. Unidades: kcal; gramos para protein/carbs/fat/fiber/sugar; mg para sodium/potassium/calcium/iron/vitaminC; mcg para vitaminD. confidence va de 0 a 1.`}
+function objectiveSchema(){return `Devuelve ÚNICAMENTE JSON: {"summary":"string","calories":number,"protein":number,"carbs":number,"fat":number,"fiber":number,"sodium":number,"potassium":number,"calcium":number,"iron":number,"vitaminC":number,"vitaminD":number,"reasoning":"2-4 frases en español"}. Trata sodio como límite superior y los demás micronutrientes como metas orientativas.`}
+function render(){
+ const app=document.getElementById("app");
+ if(!state.ready){app.innerHTML=`<div class="tk-root tk-loading">Cargando…</div>`;return}
+ if(!state.profile){renderOnboarding(app);return}
+ renderMain(app);
+ if(state.settingsOpen) renderSettings();
+}
+
+function renderOnboarding(app){
+ const p=state.profileDraft;
+ app.innerHTML=`<div class="tk-root"><div class="onboard-card">
+ <div class="onboard-eyebrow">Antes de empezar</div><h1 class="onboard-title">Cuéntame de ti</h1>
+ <p class="onboard-sub">Con esto calculo tus calorías y macros de referencia. Puedes ajustarlo cuando quieras.</p>
+ <div class="onboard-grid">
+ ${field("Nombre",`<input id="p-name" value="${escapeHtml(p.name)}" placeholder="Marcos">`)}
+ ${field("Sexo",`<select id="p-sex"><option value="hombre" ${p.sex==="hombre"?"selected":""}>Hombre</option><option value="mujer" ${p.sex==="mujer"?"selected":""}>Mujer</option></select>`)}
+ ${field("Edad",`<input id="p-age" type="number" inputmode="numeric" value="${p.age}">`)}
+ ${field("Peso (kg)",`<input id="p-weight" type="number" inputmode="decimal" value="${p.weight}">`)}
+ ${field("Altura (cm)",`<input id="p-height" type="number" inputmode="numeric" value="${p.height}">`)}
+ ${field("Actividad",`<select id="p-activity">${ACTIVITY_LEVELS.map(a=>`<option value="${a.id}" ${p.activity===a.id?"selected":""}>${a.label}</option>`).join("")}</select>`)}
+ <div class="field field-wide"><span>Objetivo</span><div class="goal-pills">${GOALS.map(g=>`<button type="button" class="pill ${p.goal===g.id?"pill-active":""}" data-goal="${g.id}">${g.label}</button>`).join("")}</div></div>
+ </div><button id="save-profile" class="btn-primary">Calcular mis objetivos</button>
+ </div></div>`;
+ document.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{state.profileDraft.goal=b.dataset.goal;render()});
+ document.getElementById("save-profile").onclick=saveProfile;
+}
+function field(label,html){return `<label class="field"><span>${label}</span>${html}</label>`}
+
+function renderMain(app){
+ const date=todayStr(state.dateOffset), t=totals(), targets=getTargets();
+ const goal=GOALS.find(g=>g.id===state.profile.goal)?.label||"Mantener";
+ app.innerHTML=`<div class="tk-root">
+ <div class="date-nav">
+  <button class="icon-btn" id="prev-day" aria-label="Día anterior">${icon("left")}</button>
+  <span class="date-label">${state.dateOffset===0?"Hoy":date}</span>
+  <button class="icon-btn" id="next-day" ${state.dateOffset===0?"disabled":""} aria-label="Día siguiente">${icon("right")}</button>
+  <button class="edit-profile-link" id="edit-profile">Editar perfil</button>
+ </div>
+ <div class="nutrition-panel">
+  <div class="np-header"><div class="np-eyebrow">Datos Nutricionales</div><div class="np-name">${escapeHtml(state.profile.name||"Tu día")}</div></div>
+  <div class="np-serving">Porción: 1 día · ${goal}</div><div class="np-rule-thick"></div>
+  <div class="np-calories-row"><span class="np-calories-label">Calorías</span><span class="np-calories-value">${Math.round(t.cal)}</span><span class="np-calories-target">de ${targets.calories}</span></div><div class="remaining-box">${Math.max(0,Math.round(targets.calories-t.cal))} kcal restantes hoy</div>
+  <div class="np-rule-thick"></div>
+  ${labelRow("Proteína",t.protein,"g",targets.protein,false,true)}
+  ${labelRow("Carbohidratos",t.carbs,"g",targets.carbs,false,true)}
+  ${labelRow("Fibra",t.fiber,"g",targets.fiber,false,false,true)}
+  ${labelRow("Azúcares",t.sugar,"g",targets.sugar,true,false,true)}
+  ${labelRow("Grasa",t.fat,"g",targets.fat,false,true)}
+  <button class="disclosure-btn" id="toggle-micros">${icon("down","icon-sm")} Micronutrientes</button>
+  ${state.microsOpen?MICRO_KEYS.map(([k,l,u])=>labelRow(l,t[k],u,targets[k],k==="sodium")).join(""):""}
+  ${state.overrideTargets?`<div class="np-footnote">Objetivos ajustados por IA. <button class="link-btn" id="reset-targets">Volver a los calculados por defecto</button></div>`:""}
+ </div>
+ <div class="card card-primary">
+  <div class="card-title">${icon("sparkles","icon-sm")} Describe qué comiste</div>
+  <textarea id="ai-text" class="text-input textarea-big" rows="3" placeholder="Ej: dos huevos revueltos con una tostada integral y medio aguacate" ${state.aiLoading?"disabled":""}>${escapeHtml(state.aiText)}</textarea>
+  <div class="voice-actions"><button id="ask-ai" class="btn-primary" ${state.aiLoading||!state.aiText.trim()?"disabled":""}>${state.aiLoading?icon("loader","icon spin"):icon("sparkles")} ${state.aiLoading?"Estimando…":"Estimar con IA"}</button><button id="meal-voice" class="btn-secondary">🎙️ Dictar comida</button></div>
+  ${state.aiError?`<div class="error-box"><span>${escapeHtml(state.aiError)}</span><button class="link-btn" id="retry-ai">Reintentar</button></div>`:""}
+  ${state.aiPreview?renderPreview():""}
+  <div class="capture-actions"><label class="capture-btn capture-btn-primary">📷 Foto<input id="photo-input" type="file" accept="image/*" capture="environment" hidden></label><button id="clear-photo" class="capture-btn" ${state.photoData?"":"disabled"}>✕ Quitar</button></div>
+  ${state.photoData?`<div class="photo-preview"><img src="${state.photoData}" alt="Foto de comida"><div class="photo-meta"><span>${escapeHtml(state.photoName)}</span><span>${state.photoLoading?"Analizando…":"Lista"}</span></div></div><button id="analyze-photo" class="btn-secondary btn-full" ${state.photoLoading?"disabled":""}>${state.photoLoading?"Analizando…":"✨ Analizar foto con IA"}</button>`:""}
+  ${state.photoError?`<div class="error-box"><span>${escapeHtml(state.photoError)}</span><button class="link-btn" id="retry-photo">Reintentar foto</button></div>`:""}
+ </div>
+ <div class="card"><div class="card-title">🎯 Objetivos personalizados</div><div class="settings-help">Describe tu objetivo con tus palabras y genera un límite diario de calorías, macros y micronutrientes.</div><textarea id="objective-text" class="text-input textarea-big" rows="3" placeholder='Ej: "Quiero perder grasa poco a poco, mantener músculo y seguir rindiendo bien entrenando MMA 5 días por semana."'>${escapeHtml(state.objectiveText)}</textarea><button id="generate-objectives" class="btn-primary btn-full" ${state.objectiveLoading||!state.objectiveText.trim()?"disabled":""}>${state.objectiveLoading?"Calculando…":"✨ Calcular mis objetivos"}</button>${state.objectiveError?`<div class="error-box"><span>${escapeHtml(state.objectiveError)}</span><button class="link-btn" id="retry-objectives">Reintentar</button></div>`:""}${state.objectivePreview?renderObjectivePreview():""}</div>
+ <div class="card">
+  <button class="disclosure-btn" id="toggle-db">${icon("down","icon-sm")} ${icon("search","icon-sm")} Buscar en base de datos</button>
+  ${state.dbOpen?renderDatabase():""}
+ </div>
+ ${state.log.length?renderLog():""}
+ <div class="card">
+  <div class="card-title">${icon("scale","icon-sm")} Peso y progreso</div>
+  <div class="weight-row"><input id="weight-input" type="number" inputmode="decimal" step=".1" class="text-input" placeholder="Peso de hoy (kg)" value="${escapeHtml(state.weightInput)}"><button id="save-weight" class="btn-small">Guardar</button></div>
+  ${renderBarcode()}
+  <button id="run-suggestion" class="btn-secondary btn-full" ${state.suggestionLoading?"disabled":""}>${state.suggestionLoading?icon("loader","icon spin"):icon("refresh")} ${state.suggestionLoading?"Analizando…":"Analizar mi progreso y sugerir ajustes"}</button>
+  ${state.suggestionError?`<div class="error-text">${escapeHtml(state.suggestionError)}</div>`:""}
+  ${state.suggestion?renderSuggestion():""}
+ </div>
+ <div class="disclaimer">Los valores nutricionales son estimaciones (base de datos local o generadas por IA) y las metas usan fórmulas generales de referencia. No sustituyen el consejo de un profesional de la salud o nutrición.</div>
+ </div>`;
+ bindMain();
+}
+function renderPreview(){
+ const d=state.aiPreview;
+ return `<div class="preview-wrap"><div class="preview-label">${icon("pencil","icon-sm")} Revisa y ajusta antes de añadir</div>
+ <input id="preview-desc" class="text-input preview-desc" value="${escapeHtml(d.description||"")}">
+ <div class="preview-grid">${MAIN_KEYS.map(([k,l,u])=>`<label class="preview-field"><span>${l} (${u})</span><input data-preview="${k}" type="number" inputmode="decimal" class="preview-input" value="${Number(d[k]||0)}"></label>`).join("")}</div>
+ <button class="disclosure-btn" id="toggle-preview-micros">${icon("down","icon-sm")} Ajustar micronutrientes</button>
+ ${state.previewMicros?`<div class="preview-grid">${MICRO_KEYS.map(([k,l,u])=>`<label class="preview-field"><span>${l} (${u})</span><input data-preview="${k}" type="number" inputmode="decimal" class="preview-input" value="${Number(d[k]||0)}"></label>`).join("")}</div>`:""}
+ <div class="preview-actions"><button id="confirm-ai" class="btn-primary">${icon("check","icon-sm")} Añadir al día</button><button id="discard-ai" class="btn-ghost">${icon("x","icon-sm")} Descartar</button></div>
+ </div>`;
+}
+function renderObjectivePreview(){const o=state.objectivePreview;const rows=[["Calorías",o.calories,"kcal"],["Proteína",o.protein,"g"],["Carbohidratos",o.carbs,"g"],["Grasa",o.fat,"g"],["Fibra",o.fiber,"g"],["Sodio",o.sodium,"mg máx."],["Potasio",o.potassium,"mg"],["Calcio",o.calcium,"mg"],["Hierro",o.iron,"mg"],["Vitamina C",o.vitaminC,"mg"],["Vitamina D",o.vitaminD,"µg"]];return `<div class="objective-summary"><div class="objective-summary-title">Propuesta de objetivos</div><div class="objective-grid">${rows.map(r=>`<div>${r[0]}</div><div><b>${r[1]} ${r[2]}</b></div>`).join("")}</div>${o.reasoning?`<div class="objective-note">${escapeHtml(o.reasoning)}</div>`:""}<div class="sticky-actions" style="margin-top:10px"><button id="apply-objectives" class="btn-small">Aplicar objetivos</button><button id="discard-objectives" class="link-btn">Descartar</button></div></div>`}
+function renderDatabase(){
+ const q=state.query.trim().toLowerCase();
+ const foods=q?FOOD_DB.filter(f=>f.name.toLowerCase().includes(q)).slice(0,6):[];
+ return `<div class="search-block"><input id="food-query" class="text-input" placeholder="Ej: pollo, avena, manzana…" value="${escapeHtml(state.query)}">
+ ${foods.length&&!state.selectedFood?`<div class="results-list">${foods.map((f,i)=>`<button class="result-item" data-food="${i}"><span>${escapeHtml(f.name)}</span><span class="result-cal">${f.cal} kcal /100g</span></button>`).join("")}</div>`:""}
+ ${state.selectedFood?`<div class="grams-row"><span class="grams-food">${escapeHtml(state.selectedFood.name)}</span><input id="grams" type="number" inputmode="decimal" class="grams-input" value="${state.grams}"><span>g</span><button id="add-db" class="btn-small">${icon("plus","icon-sm")} Añadir</button></div>`:""}
+ </div>`;
+}
+function renderLog(){
+ return `<div class="card"><div class="card-title">Registrado hoy</div><div class="log-list">${state.log.map(item=>`<div class="log-item"><span class="log-desc">${escapeHtml(item.description)}</span><span class="log-cal">${Math.round(item.cal)} kcal</span><button class="icon-btn-danger" data-delete="${escapeHtml(item.id)}" aria-label="Eliminar">${icon("trash")}</button></div>`).join("")}</div></div>`;
+}
+function renderBarcode(){
+ const vals=state.weights.slice(-24).map(w=>w.weight);
+ if(!vals.length)return `<div class="barcode-empty">Aún no hay registros de peso</div>`;
+ const min=Math.min(...vals),max=Math.max(...vals),range=max-min||1;
+ return `<div class="barcode">${vals.map(v=>`<div class="barcode-bar" style="height:${14+(v-min)/range*26}px"></div>`).join("")}</div>`;
+}
+function renderSuggestion(){
+ const s=state.suggestion;
+ return `<div class="sticky-note"><div class="sticky-title">Sugerencia de tu coach IA</div><p class="sticky-body">${escapeHtml(s.reasoning)}</p><div class="sticky-numbers">${s.calories} kcal · ${s.protein}g P · ${s.carbs}g C · ${s.fat}g G</div><div class="sticky-actions"><button id="apply-suggestion" class="btn-small">Aplicar</button><button id="discard-suggestion" class="link-btn">Descartar</button></div></div>`;
+}
+
+function bindMain(){
+ document.getElementById("prev-day").onclick=()=>{state.dateOffset--;loadDay();render()};
+ document.getElementById("next-day").onclick=()=>{if(state.dateOffset<0){state.dateOffset++;loadDay();render()}};
+ document.getElementById("edit-profile").onclick=()=>{
+   state.profileDraft={...state.profile};
+   state.profile=null;render();
+ };
+ document.getElementById("toggle-micros").onclick=()=>{state.microsOpen=!state.microsOpen;render()};
+ const aiText=document.getElementById("ai-text");
+ aiText.oninput=e=>{state.aiText=e.target.value};
+ document.getElementById("ask-ai").onclick=askAI;
+ const mealVoice=document.getElementById("meal-voice"); if(mealVoice) mealVoice.onclick=()=>startDictation((text)=>{state.aiText=(state.aiText?state.aiText+" ":"")+text;render()},mealVoice);
+ const photoInput=document.getElementById("photo-input");if(photoInput)photoInput.onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{state.photoData=await resizeImageDataUrl(await fileToDataUrl(f));state.photoName=f.name;state.photoError="";render()}catch(err){state.photoError=err.message;render()}};if(document.getElementById("clear-photo"))document.getElementById("clear-photo").onclick=()=>{state.photoData="";state.photoName="";render()};if(document.getElementById("analyze-photo"))document.getElementById("analyze-photo").onclick=analyzePhoto;if(document.getElementById("retry-photo"))document.getElementById("retry-photo").onclick=analyzePhoto;const ot=document.getElementById("objective-text");if(ot)ot.oninput=e=>{state.objectiveText=e.target.value;write("tn-objective-text",state.objectiveText)};if(document.getElementById("generate-objectives"))document.getElementById("generate-objectives").onclick=generateObjectives;if(document.getElementById("retry-objectives"))document.getElementById("retry-objectives").onclick=generateObjectives;if(document.getElementById("apply-objectives"))document.getElementById("apply-objectives").onclick=applyObjectives;if(document.getElementById("discard-objectives"))document.getElementById("discard-objectives").onclick=()=>{state.objectivePreview=null;render()};
+ if(document.getElementById("retry-ai"))document.getElementById("retry-ai").onclick=askAI;
+ document.getElementById("toggle-db").onclick=()=>{state.dbOpen=!state.dbOpen;render()};
+ const fq=document.getElementById("food-query");
+ if(fq)fq.oninput=e=>{state.query=e.target.value;state.selectedFood=null;render()};
+ document.querySelectorAll("[data-food]").forEach(b=>b.onclick=()=>{const q=state.query.trim().toLowerCase();const foods=FOOD_DB.filter(f=>f.name.toLowerCase().includes(q)).slice(0,6);state.selectedFood=foods[Number(b.dataset.food)];render()});
+ if(document.getElementById("grams"))document.getElementById("grams").oninput=e=>state.grams=Number(e.target.value);
+ if(document.getElementById("add-db"))document.getElementById("add-db").onclick=addFromDB;
+ document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>removeItem(b.dataset.delete));
+ document.getElementById("weight-input").oninput=e=>state.weightInput=e.target.value;
+ document.getElementById("save-weight").onclick=addWeight;
+ document.getElementById("run-suggestion").onclick=runSuggestion;
+ if(document.getElementById("apply-suggestion"))document.getElementById("apply-suggestion").onclick=applySuggestion;
+ if(document.getElementById("discard-suggestion"))document.getElementById("discard-suggestion").onclick=()=>{state.suggestion=null;render()};
+ if(state.aiPreview){
+   document.getElementById("preview-desc").oninput=e=>state.aiPreview.description=e.target.value;
+   document.querySelectorAll("[data-preview]").forEach(i=>i.oninput=e=>state.aiPreview[i.dataset.preview]=parseFloat(e.target.value)||0);
+   document.getElementById("toggle-preview-micros").onclick=()=>{state.previewMicros=!state.previewMicros;render()};
+   document.getElementById("confirm-ai").onclick=confirmAiAdd;
+   document.getElementById("discard-ai").onclick=()=>{state.aiPreview=null;render()};
+ }
+}
+
+function loadDay(){
+ const d=todayStr(state.dateOffset);
+ state.log=read("tn-log-"+d,[]);
+}
+function saveLog(){
+ write("tn-log-"+todayStr(state.dateOffset),state.log);
+}
+function saveProfile(){
+ const p={...state.profileDraft,age:Number(state.profileDraft.age),weight:Number(state.profileDraft.weight),height:Number(state.profileDraft.height)};
+ if(!p.name)p.name="";
+ if(!Number.isFinite(p.age)||!Number.isFinite(p.weight)||!Number.isFinite(p.height)||p.age<=0||p.weight<=0||p.height<=0){alert("Revisa edad, peso y altura.");return}
+ state.profile=p;state.overrideTargets=null;write(KEY.profile,p);remove(KEY.targets);render();
+}
+function addWeight(){
+ const val=parseFloat(state.weightInput);if(!Number.isFinite(val)||val<=0)return;
+ const date=todayStr(state.dateOffset);
+ const filtered=state.weights.filter(w=>w.date!==date);
+ state.weights=[...filtered,{date,weight:val}].sort((a,b)=>a.date.localeCompare(b.date));
+ state.weightInput="";write(KEY.weights,state.weights);render();
+}
+function addFromDB(){
+ if(!state.selectedFood||!Number.isFinite(state.grams)||state.grams<=0)return;
+ const factor=state.grams/100,item={id:String(Date.now()),description:`${state.selectedFood.name} (${state.grams}g)`};
+ NUTRIENT_KEYS.forEach(k=>item[k]=state.selectedFood[k]*factor);
+ state.log.push(item);saveLog();state.selectedFood=null;state.query="";state.grams=100;render();
+}
+function removeItem(id){state.log=state.log.filter(i=>i.id!==id);saveLog();render()}
+
+function extractJson(text){
+ let s=text.trim().replace(/^```json\s*/i,"").replace(/^```\s*/i,"").replace(/```$/,"").trim();
+ const match=s.match(/\{[\s\S]*\}/);if(!match)throw new Error("La IA no devolvió un JSON válido.");
+ try{return JSON.parse(match[0])}catch(e){throw new Error("La IA devolvió un JSON que no se pudo interpretar.")}
+}
+
+async function callOpenAI(messages){
+ const key=readText(KEY.api,"").trim();
+ const model=readText(KEY.model,"gpt-5-mini").trim()||"gpt-5-mini";
+ if(!key)throw new Error("Añade tu clave de API de OpenAI en Ajustes antes de usar la IA.");
+ const body={model,messages,response_format:{type:"json_object"}};
+ let response;
+ try{
+   response=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify(body)});
+ }catch(e){throw new Error("No se pudo conectar con OpenAI. Comprueba tu conexión y, si estás abriendo el archivo localmente, prueba también a subirlo a un hosting HTTPS.")}
+ let data;
+ try{data=await response.json()}catch(e){throw new Error("OpenAI devolvió una respuesta inválida.")}
+ if(!response.ok){
+   const msg=data?.error?.message||`OpenAI respondió con error ${response.status}.`;
+   // Algunos modelos/compatibilidades pueden no aceptar json_object.
+   if(response.status===400 && /response_format|json_object|unsupported/i.test(msg)){
+     try{
+       response=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify({model,messages})});
+       data=await response.json();
+       if(!response.ok)throw new Error(data?.error?.message||`OpenAI respondió con error ${response.status}.`);
+     }catch(e){throw new Error(e.message||msg)}
+   }else throw new Error(msg);
+ }
+ const content=data?.choices?.[0]?.message?.content;
+ if(!content)throw new Error("OpenAI devolvió una respuesta vacía.");
+ return extractJson(content);
+}
+
+async function askAI(){if(!state.aiText.trim())return;state.aiLoading=true;state.aiError="";state.aiPreview=null;render();const prompt=`Analiza esta comida y estima sus nutrientes para la cantidad descrita: "${state.aiText}". Si faltan cantidades, usa una porción razonable. ${foodSchema()}`;try{state.aiPreview=await callOpenAI([{role:"system",content:"Eres un asistente de nutrición. Devuelve estimaciones estructuradas."},{role:"user",content:prompt}])}catch(e){state.aiError=e.message||"No se pudo estimar la comida."}finally{state.aiLoading=false;render()}}
+async function analyzePhoto(){if(!state.photoData)return;state.photoLoading=true;state.photoError="";state.aiPreview=null;render();const prompt=`Analiza esta foto de una comida. Identifica alimentos visibles, estima cantidades y nutrientes de toda la comida. No afirmes precisión que la imagen no permite; usa confidence para reflejar incertidumbre. ${foodSchema()}`;try{state.aiPreview=await callOpenAI([{role:"system",content:"Eres un asistente de nutrición con visión. Las cantidades de una foto son estimaciones."},{role:"user",content:[{type:"text",text:prompt},{type:"image_url",image_url:{url:state.photoData}}]}])}catch(e){state.photoError=e.message||"No se pudo analizar la foto."}finally{state.photoLoading=false;render()}}
+async function generateObjectives(){if(!state.objectiveText.trim())return;state.objectiveLoading=true;state.objectiveError="";state.objectivePreview=null;render();const p=state.profile;const prompt=`Genera objetivos diarios orientativos para: ${p.sex}, ${p.age} años, ${p.weight} kg, ${p.height} cm, actividad ${p.activity}, objetivo ${p.goal}. Descripción del usuario: "${state.objectiveText}". Usa Mifflin-St Jeor como referencia y ajusta según el objetivo. Mantén proteína suficiente y distribuye carbohidratos/grasas de forma coherente. ${objectiveSchema()}`;try{state.objectivePreview=await callOpenAI([{role:"system",content:"Eres un asistente de nutrición conservador. No diagnosticas."},{role:"user",content:prompt}])}catch(e){state.objectiveError=e.message||"No se pudieron generar los objetivos."}finally{state.objectiveLoading=false;render()}}
+function applyObjectives(){const o=state.objectivePreview;if(!o)return;state.overrideTargets={calories:Number(o.calories),protein:Number(o.protein),carbs:Number(o.carbs),fat:Number(o.fat),fiber:Number(o.fiber),sodium:Number(o.sodium),potassium:Number(o.potassium),calcium:Number(o.calcium),iron:Number(o.iron),vitaminC:Number(o.vitaminC),vitaminD:Number(o.vitaminD)};write(KEY.targets,state.overrideTargets);state.objectivePreview=null;render()}
+function confirmAiAdd(){
+ if(!state.aiPreview)return;
+ state.log.push({id:String(Date.now()),...state.aiPreview});saveLog();state.aiPreview=null;state.aiText="";state.photoData="";state.photoName="";render();
+}
+
+async function runSuggestion(){
+ if(!state.profile)return;
+ state.suggestionLoading=true;state.suggestionError="";state.suggestion=null;render();
+ const targets=getTargets(),t=totals(),recent=state.weights.slice(-10);
+ const trend=recent.length>=2?`Peso hace ${recent.length} registros: ${recent[0].weight}kg (${recent[0].date}). Peso más reciente: ${recent[recent.length-1].weight}kg (${recent[recent.length-1].date}).`:"Aún no hay suficientes registros de peso para ver una tendencia clara.";
+ const prompt=`Eres un asistente de nutrición ayudando a una persona a ajustar sus objetivos diarios.
+Perfil: ${state.profile.sex}, ${state.profile.age} años, ${state.profile.weight}kg, ${state.profile.height}cm, nivel de actividad "${state.profile.activity}", objetivo "${state.profile.goal}".
+Objetivos actuales: ${targets.calories} kcal, ${targets.protein}g proteína, ${targets.carbs}g carbohidratos, ${targets.fat}g grasa.
+${trend}
+Comida registrada hoy: ${t.cal.toFixed(0)} kcal, ${t.protein.toFixed(0)}g proteína, ${t.carbs.toFixed(0)}g carbohidratos, ${t.fat.toFixed(0)}g grasa.
+Con base en la tendencia de peso respecto al objetivo, sugiere si mantener o ajustar los objetivos diarios de calorías y macronutrientes. Sé conservador con los ajustes (nunca más de ±300 kcal por vez).
+Responde ÚNICAMENTE con JSON, sin texto adicional, con esta forma:
+{"calories":number,"protein":number,"carbs":number,"fat":number,"reasoning":"2-3 frases en español explicando el ajuste y qué observar la próxima semana"}`;
+ try{state.suggestion=await callOpenAI([{role:"system",content:"Eres un asistente conservador de seguimiento nutricional. No diagnosticas ni sustituyes a un profesional."},{role:"user",content:prompt}]);}
+ catch(e){state.suggestionError=e.message||"No se pudo generar una sugerencia ahora mismo."}
+ finally{state.suggestionLoading=false;render()}
+}
+function applySuggestion(){
+ if(!state.suggestion)return;
+ const ov={calories:Number(state.suggestion.calories),protein:Number(state.suggestion.protein),carbs:Number(state.suggestion.carbs),fat:Number(state.suggestion.fat)};
+ state.overrideTargets=ov;write(KEY.targets,ov);state.suggestion=null;render();
+}
+function resetTargets(){state.overrideTargets=null;remove(KEY.targets);render()}
+
+function renderSettings(){
+ const saved=readText(KEY.api,"");
+ const configured=!!saved;
+ const backdrop=document.createElement("div");
+ backdrop.className="modal-backdrop";
+ backdrop.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-label="Ajustes">
+ <div class="modal-head"><div class="modal-title">Ajustes</div><button id="close-settings" class="close-btn" aria-label="Cerrar">${icon("x")}</button></div>
+ <p class="settings-help">Introduce tu clave personal de OpenAI para activar las funciones de IA. La app la guarda solamente en el almacenamiento local de este navegador y nunca se escribe en este archivo.</p>
+ <label class="small-label">Clave API de OpenAI</label>
+ <div class="api-row"><input id="api-key" class="text-input" type="password" autocomplete="off" placeholder="sk-…" value="${escapeHtml(saved)}"><button id="toggle-key" class="icon-btn" aria-label="Mostrar clave">${icon("eye")}</button></div>
+ <div class="api-status ${configured?"status-ok":"status-warn"}">${configured?"✓ Hay una clave guardada en este navegador.":"⚠ No hay una clave guardada."}</div>
+ <div class="model-row"><label class="small-label" for="model">Modelo</label><input id="model" class="text-input" value="${escapeHtml(readText(KEY.model,"gpt-5-mini"))}" placeholder="gpt-5-mini"></div>
+ <button id="save-settings" class="btn-primary">Guardar ajustes</button>
+ <button id="clear-key" class="btn-ghost" style="margin-top:10px">Borrar clave guardada</button>
+ <div class="security-note"><strong>Importante:</strong> una clave usada directamente desde un navegador puede ser extraída por quien tenga acceso a la página o al dispositivo. Para una aplicación pública o multiusuario, lo recomendable es llamar a OpenAI desde tu propio backend y mantener la clave como secreto.</div>
+ </div>`;
+ backdrop.addEventListener("click",e=>{if(e.target===backdrop){state.settingsOpen=false;render()}});
+ document.body.appendChild(backdrop);
+ document.getElementById("close-settings").onclick=()=>{state.settingsOpen=false;render()};
+ document.getElementById("save-settings").onclick=()=>{
+   const key=document.getElementById("api-key").value.trim(),model=document.getElementById("model").value.trim()||"gpt-5-mini";
+   write(KEY.api,key);write(KEY.model,model);state.settingsOpen=false;render();
+ };
+ document.getElementById("clear-key").onclick=()=>{remove(KEY.api);state.settingsOpen=false;render()};
+ document.getElementById("toggle-key").onclick=()=>{
+   const i=document.getElementById("api-key");i.type=i.type==="password"?"text":"password";
+ };
+}
+
+async function init(){
+ state.profile=read(KEY.profile,null);
+ state.profileDraft=state.profile?{...state.profile}:state.profileDraft;
+ state.overrideTargets=read(KEY.targets,null);
+ state.weights=read(KEY.weights,[]);
+ loadDay();state.ready=true;render();
+ // Settings entry point is a small gear in the document title area on mobile.
+ // Add it after first render without changing the original visual hierarchy.
+ const nav=document.querySelector(".date-nav");
+ if(nav){
+   const b=document.createElement("button");b.className="icon-btn";b.title="Ajustes de IA";b.setAttribute("aria-label","Ajustes de IA");
+   b.innerHTML="⚙";b.style.fontSize="18px";b.onclick=()=>{state.settingsOpen=true;render()};
+   nav.insertBefore(b,nav.querySelector(".edit-profile-link"));
+ }
+}
+init();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+
+
+<style>
+.voice-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.voice-actions button{min-height:48px}.coach-day-card{margin:16px 0;background:#2f4a3c;color:#fff;border-radius:18px;padding:17px;box-shadow:0 6px 18px rgba(35,55,40,.14)}.coach-day-title{font-weight:800;font-size:18px}.coach-day-sub{font-size:13px;opacity:.85;margin:4px 0 12px}.coach-day-btn{background:#fff;color:#2f4a3c!important;width:100%;min-height:46px}.coach-day-result{margin-top:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,.10);font-size:14px;line-height:1.5}.tn-extra textarea{font-size:16px}.tn-extra button{font-size:15px}
+
+.tn-extra{margin:16px 0;display:grid;gap:12px}
+.tn-extra-card{background:#fff;border:1px solid #dfe5dc;border-radius:18px;padding:16px;box-shadow:0 3px 14px rgba(35,55,40,.05)}
+.tn-extra-title{font-weight:800;font-size:18px;margin-bottom:5px}
+.tn-extra-sub{font-size:14px;color:#68736b;margin-bottom:12px}
+.tn-water{display:flex;flex-wrap:wrap;gap:8px}
+.tn-glass{width:52px;height:66px;border:1.5px solid #91a99a;border-radius:9px 9px 13px 13px;background:linear-gradient(to top,#b8d7e5 0 72%,transparent 72%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:11px;font-weight:700;color:#31566a;cursor:pointer}
+.tn-glass.empty{background:linear-gradient(to top,transparent 0 100%);color:#6d786f}
+.tn-count{margin-top:10px;font-size:14px;font-weight:700}
+.tn-extra textarea{width:100%;min-height:88px;border:1px solid #cfd8d0;border-radius:12px;padding:12px;font:inherit;font-size:16px;box-sizing:border-box;resize:vertical}
+.tn-audio-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tn-extra button{min-height:44px;border:0;border-radius:12px;padding:0 15px;font:inherit;font-weight:700;cursor:pointer}
+.tn-primary{background:#2f4a3c;color:#fff}.tn-secondary{background:#e9eee9;color:#2f4a3c}
+.tn-status{font-size:13px;color:#68736b;margin-top:8px}
+.tn-pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf2ed;margin:3px 3px 0 0;font-size:12px}
+@media (min-width:760px){.tn-extra{grid-template-columns:1fr 1fr}.tn-extra-card.activity{grid-column:span 2}}
+</style>
+<div class="tn-extra" id="tracknutriExtras">
+  <section class="tn-extra-card">
+    <div class="tn-extra-title">💧 Agua diaria</div>
+    <div class="tn-extra-sub">Cada vaso representa 500 ml.</div>
+    <div class="tn-water" id="tnWater"></div>
+    <div class="tn-count" id="tnWaterCount">0 / 8 vasos · 0,0 L</div>
+    <div class="tn-extra-sub" style="margin-top:8px">Objetivo inicial: 4 L (8 vasos). Puedes marcar más vasos si lo necesitas.</div>
+  </section>
+
+  <section class="tn-extra-card">
+    <div class="tn-extra-title">💊 Suplementación</div>
+    <div class="tn-extra-sub">Describe lo que tomas hoy para tenerlo registrado.</div>
+    <textarea id="tnSupplements" placeholder="Ej.: creatina 5 g, vitamina D, omega-3..."></textarea>
+    <div class="tn-audio-row">
+      <button class="tn-primary" id="tnSuppAudio">🎙️ Dictar suplementación</button>
+      <button class="tn-secondary" id="tnSuppSave">Guardar</button>
+    </div>
+    <div class="tn-status" id="tnSuppStatus"></div>
+  </section>
+
+  <section class="tn-extra-card">
+    <div class="tn-extra-title">🏃 Actividad del día</div>
+    <div class="tn-extra-sub">Escribe o dicta qué actividad has hecho y el coach podrá usarla para contextualizar el día.</div>
+    <textarea id="tnActivity" placeholder="Ej.: 90 min MMA intenso + 30 min caminando; hoy descanso; 1 h grappling..."></textarea>
+    <div class="tn-audio-row">
+      <button class="tn-primary" id="tnActivityAudio">🎙️ Dictar actividad</button>
+      <button class="tn-secondary" id="tnActivitySave">Guardar actividad</button>
+    </div>
+    <div class="tn-status" id="tnActivityStatus"></div>
+  </section>
+
+  <section class="tn-extra-card activity">
+    <div class="tn-extra-title">🧠 Coach del día</div>
+    <div class="tn-extra-sub">Une comida, agua, actividad, suplementación y objetivos para darte una lectura rápida del día.</div>
+    <button class="tn-primary coach-day-btn" id="tnCoachDay">✨ Revisar mi día con IA</button>
+    <div class="tn-status" id="tnCoachStatus"></div>
+    <div class="coach-day-result" id="tnCoachResult" style="display:none"></div>
+  </section>
+</div>
+<script>
+(function(){
+  const dayKey = new Date().toISOString().slice(0,10);
+  const store = {
+    get(k,d){try{return JSON.parse(localStorage.getItem('tn_'+k+'_'+dayKey)) ?? d}catch{return d}},
+    set(k,v){try{localStorage.setItem('tn_'+k+'_'+dayKey,JSON.stringify(v))}catch{}}
+  };
+
+  const water = document.getElementById('tnWater');
+  const count = document.getElementById('tnWaterCount');
+  let waterCount = Math.max(0, Number(store.get('water',0))||0);
+  function renderWater(){
+    water.innerHTML='';
+    for(let i=1;i<=8;i++){
+      const b=document.createElement('button');
+      b.type='button'; b.className='tn-glass'+(i>waterCount?' empty':'');
+      b.textContent='500 ml';
+      b.setAttribute('aria-label',(i<=waterCount?'Quitar':'Añadir')+' vaso de 500 ml');
+      b.onclick=()=>{waterCount=(i<=waterCount?i-1:i);store.set('water',waterCount);renderWater()};
+      water.appendChild(b);
+    }
+    count.textContent=waterCount+' / 8 vasos · '+(waterCount*.5).toFixed(1).replace('.',',')+' L';
+  }
+  renderWater();
+
+  const supp=document.getElementById('tnSupplements'), suppStatus=document.getElementById('tnSuppStatus');
+  supp.value=store.get('supp','');
+  document.getElementById('tnSuppSave').onclick=()=>{store.set('supp',supp.value);suppStatus.textContent='Guardado para hoy.'};
+
+  const act=document.getElementById('tnActivity'), actStatus=document.getElementById('tnActivityStatus');
+  act.value=store.get('activity','');
+  document.getElementById('tnActivitySave').onclick=()=>{store.set('activity',act.value);actStatus.textContent='Actividad guardada para hoy.'};
+
+  function startDictation(onText, button, status){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){if(status)status.textContent='El dictado del navegador no está disponible aquí.';return}
+    const r=new SR(); r.lang='es-ES'; r.interimResults=false; r.maxAlternatives=1;
+    if(button){button.disabled=true;button.textContent='🎙️ Escuchando…'}
+    if(status)status.textContent='Escuchando… habla ahora.';
+    r.onresult=e=>{const text=e.results[0][0].transcript;onText(text);if(status)status.textContent='Dictado añadido.'};
+    r.onerror=()=>{if(status)status.textContent='No se pudo usar el micrófono. Comprueba el permiso.'};
+    r.onend=()=>{if(button){button.disabled=false;button.textContent='🎙️ Dictar'} if(status && status.textContent==='Escuchando… habla ahora.')status.textContent='Dictado terminado.'};
+    r.start();
+  }
+  function dictation(target,status){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){status.textContent='El dictado del navegador no está disponible aquí.';return}
+    const r=new SR(); r.lang='es-ES'; r.interimResults=false; r.maxAlternatives=1;
+    status.textContent='Escuchando… habla ahora.';
+    r.onresult=e=>{target.value=(target.value?target.value+' ':'')+e.results[0][0].transcript;status.textContent='Dictado añadido.'};
+    r.onerror=()=>status.textContent='No se pudo usar el micrófono. Comprueba el permiso.';
+    r.onend=()=>{if(status.textContent==='Escuchando… habla ahora.')status.textContent='Dictado terminado.'};
+    r.start();
+  }
+  document.getElementById('tnSuppAudio').onclick=()=>dictation(supp,suppStatus);
+  document.getElementById('tnActivityAudio').onclick=()=>dictation(act,actStatus);
+  const coachBtn=document.getElementById('tnCoachDay'), coachStatus=document.getElementById('tnCoachStatus'), coachResult=document.getElementById('tnCoachResult');
+  if(coachBtn) coachBtn.onclick=async()=>{
+    if(typeof callOpenAI!=='function'){coachStatus.textContent='La IA no está disponible en esta versión.';return}
+    coachBtn.disabled=true; coachStatus.textContent='Analizando tu día…'; coachResult.style.display='none';
+    try{
+      const t=typeof totals==='function'?totals():{}; const targets=typeof getTargets==='function'?getTargets():{};
+      const activity=act.value.trim(), supplements=supp.value.trim();
+      const prompt=`Haz un resumen práctico de este día de nutrición. Datos: calorías ${Math.round(t.cal||0)}/${targets.calories||0}; proteína ${Math.round(t.protein||0)}/${targets.protein||0}g; carbohidratos ${Math.round(t.carbs||0)}/${targets.carbs||0}g; grasa ${Math.round(t.fat||0)}/${targets.fat||0}g; fibra ${Math.round(t.fiber||0)}/${targets.fiber||0}g; sodio ${Math.round(t.sodium||0)}/${targets.sodium||0}mg; potasio ${Math.round(t.potassium||0)}/${targets.potassium||0}mg; agua ${waterCount*500}ml; actividad: ${activity||'no registrada'}; suplementación: ${supplements||'no registrada'}. Devuelve JSON: {"headline":"string","summary":"3-5 frases","nextMeal":"1 recomendación concreta"}. Sé prudente y no diagnostiques.`;
+      const r=await callOpenAI([{role:'system',content:'Eres un coach nutricional personal prudente.'},{role:'user',content:prompt}]);
+      coachResult.innerHTML='<strong>'+escapeHtml(r.headline||'Resumen del día')+'</strong><br>'+escapeHtml(r.summary||'')+(r.nextMeal?'<br><br><b>Siguiente paso:</b> '+escapeHtml(r.nextMeal):'');
+      coachResult.style.display='block'; coachStatus.textContent='Revisión completada.';
+    }catch(e){coachStatus.textContent=e.message||'No se pudo revisar el día.'}
+    finally{coachBtn.disabled=false}
+  };
+})();
+</script>
+
+</body>
+</html>
