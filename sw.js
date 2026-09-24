@@ -1,4 +1,4 @@
-const CACHE = 'tracknutri-v1';
+const CACHE = 'tracknutri-v5';
 const ASSETS = [
   './',
   './index.html',
