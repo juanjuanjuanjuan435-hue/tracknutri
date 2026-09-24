@@ -148,6 +148,60 @@ h1{font-family:Impact,"Arial Black",system-ui,sans-serif}
 <meta name="apple-mobile-web-app-title" content="TrackNutri">
 <meta name="mobile-web-app-capable" content="yes">
 
+
+<style id="tracknutri-dark-theme">
+:root{
+  --paper:#050505;--card:#111214;--ink:#F5F7F2;--forest:#B7FF3C;
+  --mustard:#FFB84D;--rust:#FF5A5F;--line:rgba(255,255,255,.12);
+}
+html,body{background:#050505!important;color:#F5F7F2!important}
+body{background:radial-gradient(circle at 50% -10%,#182013 0,#050505 38%)!important}
+.tk-root{max-width:520px;padding:18px 15px calc(88px + env(safe-area-inset-bottom,0px))}
+h1,.np-name,.modal-title{color:#fff}
+.card,.nutrition-panel,.onboard-card,.modal{background:#111214!important;color:#F5F7F2!important;border-color:rgba(255,255,255,.14)!important}
+.field input,.field select,.text-input,.preview-input,.grams-input{background:#090a0a!important;color:#fff!important;border-color:rgba(255,255,255,.18)!important}
+.field input:focus,.field select:focus,.text-input:focus{outline-color:#B7FF3C!important}
+.btn-primary,.btn-small{background:#B7FF3C!important;color:#071000!important}
+.btn-ghost,.btn-secondary,.icon-btn{background:#17191a!important;color:#fff!important;border-color:rgba(255,255,255,.18)!important}
+.pill{background:#111214;color:#fff;border-color:rgba(255,255,255,.18)}
+.pill-active{background:#B7FF3C;color:#071000;border-color:#B7FF3C}
+.date-label,.np-serving,.np-eyebrow,.disclaimer,.settings-help,.tn-extra-sub,.tn-status{color:#9DA39A}
+.np-rule-thick{background:#fff}
+.dv-track{background:rgba(255,255,255,.12)}
+.dv-fill{background:#B7FF3C!important}
+.sticky-note{background:#201b0b;border-color:#FFB84D;color:#fff}
+.error-box{background:#251012;border-color:#FF5A5F;color:#ffb7ba}
+.capture-btn{background:#17191a;color:#fff;border-color:rgba(255,255,255,.18)}
+.capture-btn-primary{background:#B7FF3C;color:#071000;border-color:#B7FF3C}
+.photo-preview{background:#000;border-color:rgba(255,255,255,.15)}
+.objective-summary{background:#10190b;border-color:#B7FF3C}
+.security-note{background:#251012;border-color:#FF5A5F;color:#ffb7ba}
+.tn-extra{margin-top:18px}
+.tn-extra-card{background:#111214!important;color:#F5F7F2;border:1px solid rgba(255,255,255,.10);border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.tn-extra-title{color:#fff}
+.tn-primary{background:#B7FF3C!important;color:#071000!important}
+.tn-secondary{background:#191b1c!important;color:#fff!important;border:1px solid rgba(255,255,255,.14)!important}
+.tn-glass{border-color:#4DC3FF;background:linear-gradient(to top,#4DC3FF 0 72%,#111214 72%);color:#06141b}
+.tn-glass.empty{background:#111214;color:#707870}
+.coach-day-card{background:linear-gradient(145deg,#181b12,#10130e)!important;border:1px solid rgba(183,255,60,.35);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.coach-day-btn{background:#B7FF3C!important;color:#071000!important}
+.coach-day-result{background:rgba(183,255,60,.08);border:1px solid rgba(183,255,60,.18)}
+.log-item{border-color:rgba(255,255,255,.10)}
+.barcode-bar{background:#fff}
+.link-btn,.edit-profile-link{color:#B7FF3C}
+.close-btn{background:#17191a;color:#fff;border-color:rgba(255,255,255,.18)}
+.modal-backdrop{background:rgba(0,0,0,.78)}
+/* colored section accents */
+.tn-extra-card:nth-child(1){border-left:4px solid #4DC3FF}
+.tn-extra-card:nth-child(2){border-left:4px solid #A78BFA}
+.tn-extra-card:nth-child(3){border-left:4px solid #FFB84D}
+.tn-extra-card:nth-child(4){border-left:4px solid #B7FF3C}
+/* stronger primary dashboard hierarchy */
+.nutrition-panel{box-shadow:0 12px 32px rgba(0,0,0,.30)}
+.np-calories-value{color:#B7FF3C}
+.np-calories-target{color:#9DA39A}
+@media(max-width:360px){.tk-root{padding-left:12px;padding-right:12px}}
+</style>
 </head>
 <body>
 <div id="app"></div>
@@ -716,5 +770,25 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
+
+<div id="tnBottomNav" style="position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(8,8,8,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.10);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;z-index:90">
+<button data-nav="top" style="border:0;background:none;color:#B7FF3C;min-height:48px;font-size:11px;font-weight:800">⌂<br>HOY</button>
+<button data-nav="food" style="border:0;background:none;color:#fff;min-height:48px;font-size:11px;font-weight:800">🍽️<br>COMIDA</button>
+<button data-nav="extras" style="border:0;background:none;color:#fff;min-height:48px;font-size:11px;font-weight:800">💧<br>DÍA</button>
+<button data-nav="settings" style="border:0;background:none;color:#fff;min-height:48px;font-size:11px;font-weight:800">⚙️<br>AJUSTES</button>
+</div>
+<script>
+(function(){
+ const n=document.getElementById('tnBottomNav'); if(!n)return;
+ n.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  const k=b.dataset.nav;
+  if(k==='top') window.scrollTo({top:0,behavior:'smooth'});
+  if(k==='food'){const el=document.querySelector('.card-primary')||document.querySelector('.card'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+  if(k==='extras'){const el=document.getElementById('tracknutriExtras'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+  if(k==='settings'){const el=document.querySelector('[title="Ajustes de IA"]'); if(el)el.click();}
+ });
+})();
+</script>
 </body>
 </html>
